@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using OIT_Reservation.Models;
 using OIT_Reservation.Services;
+using System.Linq;
 
 namespace OIT_Reservation.Controllers
 {
@@ -16,7 +17,7 @@ namespace OIT_Reservation.Controllers
             _service = service;
         }
 
-        //GET: api/roomtype
+        // GET: api/roomtype/getall
         [HttpGet("getall")]
         public IActionResult GetAll()
         {
@@ -24,78 +25,91 @@ namespace OIT_Reservation.Controllers
             return Ok(result);
         }
 
-        // // GET: api/roomtype/5
-        // [HttpGet("{id}")]
-        // public IActionResult GetById(int id)
-        // {
-        //     var roomType = _service.GetById(id);
-        //     if (roomType == null)
-        //         return NotFound("Room type not found.");
-        //     return Ok(roomType);
-        // }
-
-        // POST: api/roomtype[HttpPost]
-    [HttpPost("add")]
-    public IActionResult Create([FromBody] RoomType roomType)
+        // POST: api/roomtype/add
+        [HttpPost("add")]
+        public IActionResult Create([FromBody] RoomType roomType)
         {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(new { success = false, message = "Validation failed", errors });
+            }
+
             try
             {
                 bool success = _service.Create(roomType);
-                return Ok("Room type created successfully.");
+                if (success)
+                    return Ok(new { success = true, message = "Room type created successfully." });
+                else
+                    return BadRequest(new { success = false, message = "Failed to create room type." });
             }
             catch (ApplicationException ex)
             {
-                return BadRequest(ex.Message); // Custom error from SQL
+                return BadRequest(new { success = false, message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error: " + ex.Message);
+                return StatusCode(500, new { success = false, message = "Internal server error: " + ex.Message });
             }
         }
 
+        // PUT: api/roomtype/update/5
+        [HttpPut("update/{id}")]
+        public IActionResult Update(int id, [FromBody] RoomType roomType)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
 
-        // // PUT: api/roomtype/5
-[HttpPut("Update/{id}")]
-public IActionResult Update(int id, [FromBody] RoomType roomType)
-{
-    try
-    {
-        roomType.RoomTypeID = id; // Set ID from route
+                return BadRequest(new { success = false, message = "Validation failed", errors });
+            }
 
-        bool updated = _service.Update(roomType);
-        if (updated)
-            return Ok("Room type updated successfully.");
-        else
-            return NotFound("Room type not found.");
-    }
-    catch (SqlException ex)
-    {
-        return BadRequest($"SQL Error: {ex.Message}");
-    }
-    catch (Exception ex)
-    {
-        return StatusCode(500, $"Internal server error: {ex.Message}");
-    }
-}
+            try
+            {
+                roomType.RoomTypeID = id; // Use ID from URL
+                bool updated = _service.Update(roomType);
 
+                if (updated)
+                    return Ok(new { success = true, message = "Room type updated successfully." });
+                else
+                    return NotFound(new { success = false, message = "Room type not found." });
+            }
+            catch (SqlException ex)
+            {
+                return BadRequest(new { success = false, message = "SQL Error: " + ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Internal server error: " + ex.Message });
+            }
+        }
 
-
-        //DELETE: api/roomtype/Delete/5
-        [HttpDelete("Delete/{id}")]
+        // Uncomment and implement delete if needed
+        /*
+        // DELETE: api/roomtype/delete/5
+        [HttpDelete("delete/{id}")]
         public IActionResult Delete(int id)
         {
             try
             {
                 var success = _service.Delete(id);
                 if (!success)
-                    return NotFound("Room type not found.");
+                    return NotFound(new { success = false, message = "Room type not found." });
 
-                return Ok("Room type deleted successfully.");
+                return Ok(new { success = true, message = "Room type deleted successfully." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Server error: {ex.Message}");
+                return StatusCode(500, new { success = false, message = "Server error: " + ex.Message });
             }
         }
+        */
     }
 }

@@ -85,3 +85,4 @@ D:\OIT_Reservation\Sorce\OIT_Reservation\obj\Release\net8.0\refint\OIT_Reservati
 D:\OIT_Reservation\Sorce\OIT_Reservation\obj\Release\net8.0\OIT_Reservation.pdb
 D:\OIT_Reservation\Sorce\OIT_Reservation\obj\Release\net8.0\OIT_Reservation.genruntimeconfig.cache
 D:\OIT_Reservation\Sorce\OIT_Reservation\obj\Release\net8.0\ref\OIT_Reservation.dll
+D:\OIT_Reservation\Sorce\OIT_Reservation\obj\Release\net8.0\OIT_Reservation.sourcelink.json

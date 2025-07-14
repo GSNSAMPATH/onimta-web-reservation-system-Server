@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("OIT_Reservation")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+97b90dee3579c6ba6f0a0f40c7d08cc8c59b447e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+08f89809687071a22e593b0f222360efb244337b")]
 [assembly: System.Reflection.AssemblyProductAttribute("OIT_Reservation")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OIT_Reservation")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
