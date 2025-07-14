@@ -65,6 +65,8 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// Add configuration
+
 // Register your app services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
