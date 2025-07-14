@@ -66,6 +66,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Add configuration
+// This is already done by default in ASP.NET Core, but you can add custom configuration if needed
 
 // Register your app services
 builder.Services.AddScoped<IUserService, UserService>();
