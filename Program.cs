@@ -71,6 +71,7 @@ builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<JwtHelper>(); // <-- Register your JwtHelper here
 builder.Services.AddScoped<RoomTypeService>();
 builder.Services.AddScoped<EventTypeService>();
+builder.Services.AddScoped<TravelAgentService>();
 
 // JWT Authentication setup - this only validates incoming tokens
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
