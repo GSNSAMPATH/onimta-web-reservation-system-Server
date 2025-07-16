@@ -16,6 +16,32 @@ namespace OIT_Reservation.Services
             _conn = config.GetConnectionString("DefaultConnection");
         }
 
+        public List<TravelAgent> GetAll()
+        {
+            var list = new List<TravelAgent>();
+
+            using var conn = new SqlConnection(_conn);
+            using var cmd = new SqlCommand("sp_GetAllTravelAgents", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
+
+            while (reader.Read())
+            {
+                list.Add(new TravelAgent
+                {
+                    TravelAgentID = Convert.ToInt32(reader["TravelAgentID"]),
+                    TravelAgentCode = reader["TravelAgentCode"].ToString(),
+                    Description = reader["Description"].ToString(),
+                });
+            }
+
+            return list;
+        }
+
         public bool Create(TravelAgent travelAgent)
         {
             try
@@ -50,6 +76,30 @@ namespace OIT_Reservation.Services
 
                 throw new ApplicationException("Database error: " + ex.Message);
             }
+        }
+
+        public bool Update(TravelAgent travelAgent)
+        {
+            using var conn = new SqlConnection(_conn);
+            using var cmd = new SqlCommand("sp_UpdateTravelAgent", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            cmd.Parameters.AddWithValue("@TravelAgentID", travelAgent.TravelAgentID);
+            cmd.Parameters.AddWithValue("@Description", travelAgent.Description);
+
+            var existsParam = new SqlParameter("@Exists", SqlDbType.Bit)
+            {
+                Direction = ParameterDirection.Output
+            };
+            cmd.Parameters.Add(existsParam);
+
+            conn.Open();
+            cmd.ExecuteNonQuery();
+
+            bool exists = existsParam.Value != DBNull.Value && (bool)existsParam.Value;
+            return exists;
         }
     }
 }

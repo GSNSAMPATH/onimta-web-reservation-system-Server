@@ -16,6 +16,14 @@ namespace OIT_Reservation.Controllers
             _service = service;
         }
 
+        //GET: api/travelagent
+        [HttpGet("getall")]
+        public IActionResult GetAll()
+        {
+            var result = _service.GetAll();
+            return Ok(result);
+        }
+
         // POST: api/travelagent[HttpPost]
         [HttpPost("add")]
         public IActionResult Create([FromBody] TravelAgent travelAgent)
@@ -36,6 +44,29 @@ namespace OIT_Reservation.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPut("Update/{id}")]
+        public IActionResult Update(int id, [FromBody] TravelAgent travelAgent)
+        {
+            try
+            {
+                travelAgent.TravelAgentID = id;
+
+                bool updated = _service.Update(travelAgent);
+                if (updated)
+                    return Ok("Travel Agent updated successfully.");
+                else
+                    return NotFound("Travel Agent not found.");
+            }
+            catch (SqlException ex)
+            {
+                return BadRequest($"SQL Error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
     }
