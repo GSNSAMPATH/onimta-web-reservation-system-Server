@@ -1,1 +1,11 @@
-{"Version":1,"Hash":"gLsakm1Py1nBqKYfOCgzOaAlE3qs+cK6sGSyI3o040s=","Source":"OIT_Reservation","BasePath":"_content/OIT_Reservation","Mode":"Default","ManifestType":"Build","ReferencedProjectsConfiguration":[],"DiscoveryPatterns":[],"Assets":[],"Endpoints":[]}
+{
+  "Version": 1,
+  "Hash": "xlz/CXC2VZiDr8Qf6yb8s4HVxkSzBb6C670YbkSkfQs=",
+  "Source": "OIT_Reservation",
+  "BasePath": "_content/OIT_Reservation",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
