@@ -33,11 +33,10 @@ namespace OIT_Reservation.Services
             {
                 list.Add(new RoomType
                 {
-                    RoomTypeID = (int)reader["RoomTypeID"],
+                    RoomTypeID = Convert.ToInt32(reader["RoomTypeID"]),
                     RoomTypeCode = reader["RoomTypeCode"].ToString(),
                     Description = reader["Description"].ToString(),
                     Remarks = reader["Remarks"].ToString(),
-                    IsActive = reader["IsActive"] != DBNull.Value ? (bool)reader["IsActive"] : true
                 });
             }
 
@@ -49,30 +48,28 @@ namespace OIT_Reservation.Services
             try
             {
                 using var conn = new SqlConnection(_conn);
-                using var cmd = new SqlCommand("sp_reservation_roomtype_save", conn)
+                using var cmd = new SqlCommand("sp_InsertRoomType", conn)
                 {
                     CommandType = CommandType.StoredProcedure
                 };
 
-                // Input params
-                cmd.Parameters.AddWithValue("@RoomTypeCode", roomType.RoomTypeCode ?? string.Empty);
-                cmd.Parameters.AddWithValue("@RoomTypeName", roomType.Description ?? string.Empty);
-                cmd.Parameters.AddWithValue("@Remark", roomType.Remarks ?? (object)DBNull.Value);
-                cmd.Parameters.AddWithValue("@IsActive", roomType.IsActive);
-                cmd.Parameters.AddWithValue("@IsNew", true); // true for create
-
-                // Output param
-                var outputParam = new SqlParameter("@RoomTypeCodeRet", SqlDbType.VarChar, 20)
+                // Output param for generated code
+                var roomTypeCodeParam = new SqlParameter("@RoomTypeCode", SqlDbType.NVarChar, 20)
                 {
                     Direction = ParameterDirection.Output
                 };
-                cmd.Parameters.Add(outputParam);
+
+                cmd.Parameters.Add(roomTypeCodeParam);
+                cmd.Parameters.AddWithValue("@Description", roomType.Description);
+                cmd.Parameters.AddWithValue("@Remarks", roomType.Remarks ?? (object)DBNull.Value);
 
                 conn.Open();
                 cmd.ExecuteNonQuery();
 
-                string returnedCode = outputParam.Value?.ToString() ?? string.Empty;
-                return !string.IsNullOrEmpty(returnedCode);
+                // Set the generated RoomTypeCode to return or log
+                roomType.RoomTypeCode = roomTypeCodeParam.Value.ToString();
+
+                return true;
             }
             catch (SqlException ex)
             {
@@ -85,38 +82,28 @@ namespace OIT_Reservation.Services
 
         public bool Update(RoomType roomType)
         {
-            try
+            using var conn = new SqlConnection(_conn);
+            using var cmd = new SqlCommand("sp_UpdateRoomType", conn)
             {
-                using var conn = new SqlConnection(_conn);
-                using var cmd = new SqlCommand("sp_reservation_roomtype_save", conn)
-                {
-                    CommandType = CommandType.StoredProcedure
-                };
+                CommandType = CommandType.StoredProcedure
+            };
 
-                // Input params
-                cmd.Parameters.AddWithValue("@RoomTypeCode", roomType.RoomTypeCode ?? string.Empty);
-                cmd.Parameters.AddWithValue("@RoomTypeName", roomType.Description ?? string.Empty);
-                cmd.Parameters.AddWithValue("@Remark", roomType.Remarks ?? (object)DBNull.Value);
-                cmd.Parameters.AddWithValue("@IsActive", roomType.IsActive);
-                cmd.Parameters.AddWithValue("@IsNew", false); // false for update
+            cmd.Parameters.AddWithValue("@RoomTypeID", roomType.RoomTypeID);
+            cmd.Parameters.AddWithValue("@Description", roomType.Description);
+            cmd.Parameters.AddWithValue("@Remarks", roomType.Remarks ?? (object)DBNull.Value);
 
-                // Output param
-                var outputParam = new SqlParameter("@RoomTypeCodeRet", SqlDbType.VarChar, 20)
-                {
-                    Direction = ParameterDirection.Output
-                };
-                cmd.Parameters.Add(outputParam);
-
-                conn.Open();
-                cmd.ExecuteNonQuery();
-
-                string returnedCode = outputParam.Value?.ToString() ?? string.Empty;
-                return !string.IsNullOrEmpty(returnedCode);
-            }
-            catch (Exception ex)
+            var existsParam = new SqlParameter("@Exists", SqlDbType.Bit)
             {
-                throw new ApplicationException("Error updating room type: " + ex.Message);
-            }
+                Direction = ParameterDirection.Output
+            };
+            cmd.Parameters.Add(existsParam);
+
+            conn.Open();
+            cmd.ExecuteNonQuery();
+
+            bool exists = existsParam.Value != DBNull.Value && (bool)existsParam.Value;
+            return exists;
         }
     }
 }
+
