@@ -65,15 +65,12 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Add configuration
-// This is already done by default in ASP.NET Core, but you can add custom configuration if needed
-
 // Register your app services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<JwtHelper>(); // <-- Register your JwtHelper here
 builder.Services.AddScoped<RoomTypeService>();
-builder.Services.AddScoped<IReservationRoomService, ReservationRoomService>();
+builder.Services.AddScoped<EventTypeService>();
 
 // JWT Authentication setup - this only validates incoming tokens
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
