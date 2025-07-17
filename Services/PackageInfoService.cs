@@ -62,13 +62,28 @@ namespace OIT_Reservation.Services
                     CommandType = CommandType.StoredProcedure
                 };
 
-                // PackageCode is input/output
+                // PackageID = 0 for insert (REQUIRED by SP)
+                cmd.Parameters.AddWithValue("@PackageID", 0);
+
+                // PackageCode is output
                 var packageCodeParam = new SqlParameter("@PackageCode", SqlDbType.VarChar, 300)
                 {
-                    Direction = ParameterDirection.InputOutput,
-                    Value = string.IsNullOrEmpty(packageInfo.PackageCode) ? (object)DBNull.Value : packageInfo.PackageCode
+                    Direction = ParameterDirection.Output,
+                    Value = string.Empty
                 };
                 cmd.Parameters.Add(packageCodeParam);
+
+                // Required parameters matching SP signature
+                cmd.Parameters.AddWithValue("@PackageName", packageInfo.PackageName ?? string.Empty);
+                cmd.Parameters.AddWithValue("@PackageDuration", packageInfo.PackageDuration);
+                cmd.Parameters.AddWithValue("@Remark", packageInfo.Remarks ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@RoomPrice", packageInfo.RoomPrice);
+                cmd.Parameters.AddWithValue("@RoomCost", packageInfo.RoomCost);
+                cmd.Parameters.AddWithValue("@RoomAmount", packageInfo.RoomAmount);
+                cmd.Parameters.AddWithValue("@FoodAmount", packageInfo.FoodAmount);
+                cmd.Parameters.AddWithValue("@BeverageAmount", packageInfo.BeverageAmount);
+                cmd.Parameters.AddWithValue("@IsRoom", packageInfo.IsRoom);
+                cmd.Parameters.AddWithValue("@IsBanquet", packageInfo.IsBanquet);
 
                 // Output parameter for return value
                 var packageCodeRetParam = new SqlParameter("@PackageCodeRet", SqlDbType.VarChar, 20)
@@ -77,90 +92,84 @@ namespace OIT_Reservation.Services
                 };
                 cmd.Parameters.Add(packageCodeRetParam);
 
-                cmd.Parameters.AddWithValue("@PackageName", packageInfo.PackageName);
-                cmd.Parameters.AddWithValue("@PackageDuration", packageInfo.PackageDuration);
-                cmd.Parameters.AddWithValue("@Remark", string.IsNullOrEmpty(packageInfo.Remarks) ? (object)DBNull.Value : packageInfo.Remarks);
+                conn.Open();
 
+                int rowsAffected = 0;
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read() && reader["RowsAffected"] != DBNull.Value)
+                        rowsAffected = Convert.ToInt32(reader["RowsAffected"]);
+                }
+
+                // Get the generated package code
+                packageInfo.PackageCode = packageCodeRetParam.Value?.ToString() ?? packageCodeParam.Value?.ToString() ?? string.Empty;
+
+                return rowsAffected > 0;
+            }
+            catch (SqlException ex)
+            {
+                throw new ApplicationException($"Database error: {ex.Message}");
+            }
+        }
+
+        public bool Update(PackageInfo packageInfo)
+        {
+            try
+            {
+                using var conn = new SqlConnection(_conn);
+                using var cmd = new SqlCommand("sp_reservation_package_save", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                // Send PackageID for update (REQUIRED by SP)
+                cmd.Parameters.AddWithValue("@PackageID", packageInfo.PackageID);
+
+                // Output/input PackageCode
+                var packageCodeParam = new SqlParameter("@PackageCode", SqlDbType.VarChar, 300)
+                {
+                    Direction = ParameterDirection.InputOutput,
+                    Value = packageInfo.PackageCode ?? string.Empty
+                };
+                cmd.Parameters.Add(packageCodeParam);
+
+                // Required parameters matching SP signature
+                cmd.Parameters.AddWithValue("@PackageName", packageInfo.PackageName ?? string.Empty);
+                cmd.Parameters.AddWithValue("@PackageDuration", packageInfo.PackageDuration);
+                cmd.Parameters.AddWithValue("@Remark", packageInfo.Remarks ?? (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@RoomPrice", packageInfo.RoomPrice);
                 cmd.Parameters.AddWithValue("@RoomCost", packageInfo.RoomCost);
                 cmd.Parameters.AddWithValue("@RoomAmount", packageInfo.RoomAmount);
                 cmd.Parameters.AddWithValue("@FoodAmount", packageInfo.FoodAmount);
                 cmd.Parameters.AddWithValue("@BeverageAmount", packageInfo.BeverageAmount);
-
                 cmd.Parameters.AddWithValue("@IsRoom", packageInfo.IsRoom);
                 cmd.Parameters.AddWithValue("@IsBanquet", packageInfo.IsBanquet);
 
+                // Output returned code
+                var packageCodeRetParam = new SqlParameter("@PackageCodeRet", SqlDbType.VarChar, 20)
+                {
+                    Direction = ParameterDirection.Output
+                };
+                cmd.Parameters.Add(packageCodeRetParam);
+
                 conn.Open();
-                cmd.ExecuteNonQuery();
 
-                // Capture the returned/generated code (either works)
-                packageInfo.PackageCode = packageCodeRetParam.Value?.ToString() ?? packageCodeParam.Value?.ToString();
+                int rowsAffected = 0;
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read() && reader["RowsAffected"] != DBNull.Value)
+                        rowsAffected = Convert.ToInt32(reader["RowsAffected"]);
+                }
 
-                return true;
+                // Update the object with current code
+                packageInfo.PackageCode = packageCodeRetParam.Value?.ToString() ?? string.Empty;
+
+                return rowsAffected > 0;
             }
             catch (SqlException ex)
             {
-                if (ex.Number == 50000 && ex.Message.Contains("Package Information Code already exists"))
-                    throw new ApplicationException("Package Information Code already exists.");
-
-                throw new ApplicationException("Database error: " + ex.Message);
+                throw new ApplicationException($"Database error: {ex.Message}");
             }
         }
-
-        public bool Update(PackageInfo packageInfo)
-{
-    using var conn = new SqlConnection(_conn);
-    using var cmd = new SqlCommand("sp_reservation_package_save", conn)
-    {
-        CommandType = CommandType.StoredProcedure
-    };
-
-    // Send PackageID (0 for insert, >0 for update)
-    cmd.Parameters.AddWithValue("@PackageID", packageInfo.PackageID);
-
-    // Output/input PackageCode
-    var packageCodeParam = new SqlParameter("@PackageCode", SqlDbType.VarChar, 300)
-    {
-        Direction = ParameterDirection.InputOutput,
-        Value = (object?)packageInfo.PackageCode ?? string.Empty
-    };
-    cmd.Parameters.Add(packageCodeParam);
-
-    // Output returned code
-    var packageCodeRetParam = new SqlParameter("@PackageCodeRet", SqlDbType.VarChar, 20)
-    {
-        Direction = ParameterDirection.Output
-    };
-    cmd.Parameters.Add(packageCodeRetParam);
-
-    // Other parameters
-    cmd.Parameters.AddWithValue("@PackageName", packageInfo.PackageName);
-    cmd.Parameters.AddWithValue("@PackageDuration", packageInfo.PackageDuration);
-    cmd.Parameters.AddWithValue("@Remark", string.IsNullOrEmpty(packageInfo.Remarks) ? DBNull.Value : packageInfo.Remarks);
-    cmd.Parameters.AddWithValue("@RoomPrice", packageInfo.RoomPrice);
-    cmd.Parameters.AddWithValue("@RoomCost", packageInfo.RoomCost);
-    cmd.Parameters.AddWithValue("@RoomAmount", packageInfo.RoomAmount);
-    cmd.Parameters.AddWithValue("@FoodAmount", packageInfo.FoodAmount);
-    cmd.Parameters.AddWithValue("@BeverageAmount", packageInfo.BeverageAmount);
-    cmd.Parameters.AddWithValue("@IsRoom", packageInfo.IsRoom);
-    cmd.Parameters.AddWithValue("@IsBanquet", packageInfo.IsBanquet);
-
-    conn.Open();
-
-    int rowsAffected = 0;
-
-    using (var reader = cmd.ExecuteReader())
-    {
-        if (reader.Read() && reader["RowsAffected"] != DBNull.Value)
-            rowsAffected = Convert.ToInt32(reader["RowsAffected"]);
-    }
-
-    // Update the object with generated code (insert or update)
-    packageInfo.PackageCode = packageCodeRetParam.Value?.ToString();
-
-    return rowsAffected > 0;
-}
-
-
     }
 }
