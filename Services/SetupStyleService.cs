@@ -52,20 +52,21 @@ namespace OIT_Reservation.Services
                     CommandType = CommandType.StoredProcedure
                 };
 
-                // Output param for generated code
+                // Output parameter for generated code
                 var setupStyleCodeParam = new SqlParameter("@SetupStyleCode", SqlDbType.NVarChar, 20)
                 {
                     Direction = ParameterDirection.Output
                 };
-
                 cmd.Parameters.Add(setupStyleCodeParam);
+
+                // Required inputs
                 cmd.Parameters.AddWithValue("@Description", setupStyle.Description);
-                cmd.Parameters.AddWithValue("@Remarks", setupStyle.Remarks ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@Remarks", string.IsNullOrEmpty(setupStyle.Remarks) ? (object)DBNull.Value : setupStyle.Remarks);
 
                 conn.Open();
                 cmd.ExecuteNonQuery();
 
-                // Set the generated SetupStyleTypeCode to return or log
+                // Set generated code back to model
                 setupStyle.SetupStyleCode = setupStyleCodeParam.Value.ToString();
 
                 return true;
