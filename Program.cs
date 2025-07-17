@@ -73,6 +73,7 @@ builder.Services.AddScoped<RoomTypeService>();
 builder.Services.AddScoped<EventTypeService>();
 builder.Services.AddScoped<TravelAgentService>();
 builder.Services.AddScoped<setupStyleService>();
+builder.Services.AddScoped<PackageInfoService>();
 
 // JWT Authentication setup - this only validates incoming tokens
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
