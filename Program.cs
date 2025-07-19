@@ -8,9 +8,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer; // For JwtHelper
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add controllers
-builder.Services.AddControllers();
-
 // Add CORS policy (Allow all for testing)
 builder.Services.AddCors(options =>
 {
@@ -21,6 +18,9 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
+
+// Add controllers
+builder.Services.AddControllers();
 
 // Add logging
 builder.Services.AddLogging(logging =>
