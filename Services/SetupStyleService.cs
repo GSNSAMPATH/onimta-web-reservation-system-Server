@@ -7,21 +7,21 @@ using System.Data;
 
 namespace OIT_Reservation.Services
 {
-    public class RoomTypeService
+    public class setupStyleService
     {
         private readonly string _conn;
 
-        public RoomTypeService(IConfiguration config)
+        public setupStyleService(IConfiguration config)
         {
             _conn = config.GetConnectionString("DefaultConnection");
         }
 
-        public List<RoomType> GetAll()
+        public List<SetupStyle> GetAll()
         {
-            var list = new List<RoomType>();
+            var list = new List<SetupStyle>();
 
             using var conn = new SqlConnection(_conn);
-            using var cmd = new SqlCommand("sp_GetAllRoomTypes", conn)
+            using var cmd = new SqlCommand("sp_GetAllSetupStyleTypes", conn)
             {
                 CommandType = CommandType.StoredProcedure
             };
@@ -31,66 +31,66 @@ namespace OIT_Reservation.Services
 
             while (reader.Read())
             {
-                list.Add(new RoomType
+                list.Add(new SetupStyle
                 {
-                    RoomTypeID = Convert.ToInt32(reader["RoomTypeID"]),
-                    RoomTypeCode = reader["RoomTypeCode"].ToString(),
+                    SetupStyleTypeID = Convert.ToInt32(reader["SetupStyleTypeID"]),
+                    SetupStyleCode = reader["SetupStyleCode"].ToString(),
                     Description = reader["Description"].ToString(),
                     Remarks = reader["Remarks"].ToString(),
                 });
             }
-
             return list;
         }
 
-        public bool Create(RoomType roomType)
+        public bool Create(SetupStyle setupStyle)
         {
             try
             {
                 using var conn = new SqlConnection(_conn);
-                using var cmd = new SqlCommand("sp_InsertRoomType", conn)
+                using var cmd = new SqlCommand("sp_InsertSetupStyleType", conn)
                 {
                     CommandType = CommandType.StoredProcedure
                 };
 
-                // Output param for generated code
-                var roomTypeCodeParam = new SqlParameter("@RoomTypeCode", SqlDbType.NVarChar, 20)
+                // Output parameter for generated code
+                var setupStyleCodeParam = new SqlParameter("@SetupStyleCode", SqlDbType.NVarChar, 20)
                 {
                     Direction = ParameterDirection.Output
                 };
+                cmd.Parameters.Add(setupStyleCodeParam);
 
-                cmd.Parameters.Add(roomTypeCodeParam);
-                cmd.Parameters.AddWithValue("@Description", roomType.Description);
-                cmd.Parameters.AddWithValue("@Remarks", roomType.Remarks ?? (object)DBNull.Value);
+                // Required inputs
+                cmd.Parameters.AddWithValue("@Description", setupStyle.Description);
+                cmd.Parameters.AddWithValue("@Remarks", string.IsNullOrEmpty(setupStyle.Remarks) ? (object)DBNull.Value : setupStyle.Remarks);
 
                 conn.Open();
                 cmd.ExecuteNonQuery();
 
-                // Set the generated RoomTypeCode to return or log
-                roomType.RoomTypeCode = roomTypeCodeParam.Value.ToString();
+                // Set generated code back to model
+                setupStyle.SetupStyleCode = setupStyleCodeParam.Value.ToString();
 
                 return true;
             }
             catch (SqlException ex)
             {
-                if (ex.Number == 50000 && ex.Message.Contains("Room Type Code already exists"))
-                    throw new ApplicationException("Room Type Code already exists.");
+                if (ex.Number == 50000 && ex.Message.Contains("Setup Style Type Code already exists"))
+                    throw new ApplicationException("Setup Style Type Code already exists.");
 
                 throw new ApplicationException("Database error: " + ex.Message);
             }
         }
 
-        public bool Update(RoomType roomType)
+        public bool Update(SetupStyle setupStyle)
         {
             using var conn = new SqlConnection(_conn);
-            using var cmd = new SqlCommand("sp_UpdateRoomType", conn)
+            using var cmd = new SqlCommand("sp_UpdateSetupStyleType", conn)
             {
                 CommandType = CommandType.StoredProcedure
             };
 
-            cmd.Parameters.AddWithValue("@RoomTypeID", roomType.RoomTypeID);
-            cmd.Parameters.AddWithValue("@Description", roomType.Description);
-            cmd.Parameters.AddWithValue("@Remarks", roomType.Remarks ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@SetupStyleTypeID", setupStyle.SetupStyleTypeID);
+            cmd.Parameters.AddWithValue("@Description", setupStyle.Description);
+            cmd.Parameters.AddWithValue("@Remarks", setupStyle.Remarks ?? (object)DBNull.Value);
 
             var existsParam = new SqlParameter("@Exists", SqlDbType.Bit)
             {
@@ -106,4 +106,3 @@ namespace OIT_Reservation.Services
         }
     }
 }
-

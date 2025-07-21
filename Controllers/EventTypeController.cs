@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using OIT_Reservation.Models;
 using OIT_Reservation.Services;
@@ -7,16 +7,16 @@ namespace OIT_Reservation.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class RoomTypeController : ControllerBase
+    public class EventTypeController : ControllerBase
     {
-        private readonly RoomTypeService _service;
+        private readonly EventTypeService _service;
 
-        public RoomTypeController(RoomTypeService service)
+        public EventTypeController(EventTypeService service)
         {
             _service = service;
         }
 
-        //GET: api/roomtype
+        //GET: api/eventtype
         [HttpGet("getall")]
         public IActionResult GetAll()
         {
@@ -24,17 +24,17 @@ namespace OIT_Reservation.Controllers
             return Ok(result);
         }
 
-        // POST: api/roomtype[HttpPost]
+        // POST: api/eventtype[HttpPost]
         [HttpPost("add")]
-        public IActionResult Create([FromBody] RoomType roomType)
+        public IActionResult Create([FromBody] EventType eventType)
         {
             try
             {
-                bool success = _service.Create(roomType);
+                bool success = _service.Create(eventType);
                 return Ok(new
                 {
-                    message = "Room type created successfully.",
-                    generatedCode = roomType.RoomTypeCode
+                    message = "Event type created successfully.",
+                    generatedCode = eventType.EventCode
                 });
             }
             catch (ApplicationException ex)
@@ -47,19 +47,19 @@ namespace OIT_Reservation.Controllers
             }
         }
 
-
+        // PUT: api/eventtype[HttpPut]
         [HttpPut("Update/{id}")]
-        public IActionResult Update(int id, [FromBody] RoomType roomType)
+        public IActionResult Update(int id, [FromBody] EventType eventType)
         {
             try
             {
-                roomType.RoomTypeID = id;
+                eventType.EventTypeID = id;
 
-                bool updated = _service.Update(roomType);
+                bool updated = _service.Update(eventType);
                 if (updated)
-                    return Ok("Room type updated successfully.");
+                    return Ok("Event type updated successfully.");
                 else
-                    return NotFound("Room type not found.");
+                    return NotFound("Event type not found.");
             }
             catch (SqlException ex)
             {

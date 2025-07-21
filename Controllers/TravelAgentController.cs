@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using OIT_Reservation.Models;
 using OIT_Reservation.Services;
@@ -7,16 +7,16 @@ namespace OIT_Reservation.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class RoomTypeController : ControllerBase
+    public class TravelAgentController : ControllerBase
     {
-        private readonly RoomTypeService _service;
+        private readonly TravelAgentService _service;
 
-        public RoomTypeController(RoomTypeService service)
+        public TravelAgentController(TravelAgentService service)
         {
             _service = service;
         }
 
-        //GET: api/roomtype
+        //GET: api/travelagent
         [HttpGet("getall")]
         public IActionResult GetAll()
         {
@@ -24,17 +24,17 @@ namespace OIT_Reservation.Controllers
             return Ok(result);
         }
 
-        // POST: api/roomtype[HttpPost]
+        // POST: api/travelagent[HttpPost]
         [HttpPost("add")]
-        public IActionResult Create([FromBody] RoomType roomType)
+        public IActionResult Create([FromBody] TravelAgent travelAgent)
         {
             try
             {
-                bool success = _service.Create(roomType);
+                bool success = _service.Create(travelAgent);
                 return Ok(new
                 {
-                    message = "Room type created successfully.",
-                    generatedCode = roomType.RoomTypeCode
+                    message = "Travel agent created successfully.",
+                    generatedCode = travelAgent.TravelAgentCode
                 });
             }
             catch (ApplicationException ex)
@@ -47,19 +47,18 @@ namespace OIT_Reservation.Controllers
             }
         }
 
-
         [HttpPut("Update/{id}")]
-        public IActionResult Update(int id, [FromBody] RoomType roomType)
+        public IActionResult Update(int id, [FromBody] TravelAgent travelAgent)
         {
             try
             {
-                roomType.RoomTypeID = id;
+                travelAgent.TravelAgentID = id;
 
-                bool updated = _service.Update(roomType);
+                bool updated = _service.Update(travelAgent);
                 if (updated)
-                    return Ok("Room type updated successfully.");
+                    return Ok("Travel Agent updated successfully.");
                 else
-                    return NotFound("Room type not found.");
+                    return NotFound("Travel Agent not found.");
             }
             catch (SqlException ex)
             {

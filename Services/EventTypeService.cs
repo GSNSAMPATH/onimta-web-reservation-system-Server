@@ -7,21 +7,21 @@ using System.Data;
 
 namespace OIT_Reservation.Services
 {
-    public class RoomTypeService
+    public class EventTypeService
     {
         private readonly string _conn;
 
-        public RoomTypeService(IConfiguration config)
+        public EventTypeService(IConfiguration config)
         {
             _conn = config.GetConnectionString("DefaultConnection");
         }
 
-        public List<RoomType> GetAll()
+        public List<EventType> GetAll()
         {
-            var list = new List<RoomType>();
+            var list = new List<EventType>();
 
             using var conn = new SqlConnection(_conn);
-            using var cmd = new SqlCommand("sp_GetAllRoomTypes", conn)
+            using var cmd = new SqlCommand("sp_GetAllEventTypes", conn)
             {
                 CommandType = CommandType.StoredProcedure
             };
@@ -31,66 +31,65 @@ namespace OIT_Reservation.Services
 
             while (reader.Read())
             {
-                list.Add(new RoomType
+                list.Add(new EventType
                 {
-                    RoomTypeID = Convert.ToInt32(reader["RoomTypeID"]),
-                    RoomTypeCode = reader["RoomTypeCode"].ToString(),
+                    EventTypeID = Convert.ToInt32(reader["EventTypeID"]),
+                    EventCode = reader["EventCode"].ToString(),
                     Description = reader["Description"].ToString(),
                     Remarks = reader["Remarks"].ToString(),
                 });
             }
-
             return list;
         }
 
-        public bool Create(RoomType roomType)
+        public bool Create(EventType eventType)
         {
             try
             {
                 using var conn = new SqlConnection(_conn);
-                using var cmd = new SqlCommand("sp_InsertRoomType", conn)
+                using var cmd = new SqlCommand("sp_InsertEventType", conn)
                 {
                     CommandType = CommandType.StoredProcedure
                 };
 
                 // Output param for generated code
-                var roomTypeCodeParam = new SqlParameter("@RoomTypeCode", SqlDbType.NVarChar, 20)
+                var eventCodeParam = new SqlParameter("@EventCode", SqlDbType.NVarChar, 20)
                 {
                     Direction = ParameterDirection.Output
                 };
 
-                cmd.Parameters.Add(roomTypeCodeParam);
-                cmd.Parameters.AddWithValue("@Description", roomType.Description);
-                cmd.Parameters.AddWithValue("@Remarks", roomType.Remarks ?? (object)DBNull.Value);
+                cmd.Parameters.Add(eventCodeParam);
+                cmd.Parameters.AddWithValue("@Description", eventType.Description);
+                cmd.Parameters.AddWithValue("@Remarks", eventType.Remarks ?? (object)DBNull.Value);
 
                 conn.Open();
                 cmd.ExecuteNonQuery();
 
-                // Set the generated RoomTypeCode to return or log
-                roomType.RoomTypeCode = roomTypeCodeParam.Value.ToString();
+                // Set the generated EventTypeCode to return or log
+                eventType.EventCode = eventCodeParam.Value.ToString();
 
                 return true;
             }
             catch (SqlException ex)
             {
-                if (ex.Number == 50000 && ex.Message.Contains("Room Type Code already exists"))
-                    throw new ApplicationException("Room Type Code already exists.");
+                if (ex.Number == 50000 && ex.Message.Contains("Event Type Code already exists"))
+                    throw new ApplicationException("Event Type Code already exists.");
 
                 throw new ApplicationException("Database error: " + ex.Message);
             }
         }
 
-        public bool Update(RoomType roomType)
+        public bool Update(EventType eventType)
         {
             using var conn = new SqlConnection(_conn);
-            using var cmd = new SqlCommand("sp_UpdateRoomType", conn)
+            using var cmd = new SqlCommand("sp_UpdateEventType", conn)
             {
                 CommandType = CommandType.StoredProcedure
             };
 
-            cmd.Parameters.AddWithValue("@RoomTypeID", roomType.RoomTypeID);
-            cmd.Parameters.AddWithValue("@Description", roomType.Description);
-            cmd.Parameters.AddWithValue("@Remarks", roomType.Remarks ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@EventTypeID", eventType.EventTypeID);
+            cmd.Parameters.AddWithValue("@Description", eventType.Description);
+            cmd.Parameters.AddWithValue("@Remarks", eventType.Remarks ?? (object)DBNull.Value);
 
             var existsParam = new SqlParameter("@Exists", SqlDbType.Bit)
             {
@@ -106,4 +105,3 @@ namespace OIT_Reservation.Services
         }
     }
 }
-

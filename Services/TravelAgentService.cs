@@ -7,21 +7,21 @@ using System.Data;
 
 namespace OIT_Reservation.Services
 {
-    public class RoomTypeService
+    public class TravelAgentService
     {
         private readonly string _conn;
 
-        public RoomTypeService(IConfiguration config)
+        public TravelAgentService(IConfiguration config)
         {
             _conn = config.GetConnectionString("DefaultConnection");
         }
 
-        public List<RoomType> GetAll()
+        public List<TravelAgent> GetAll()
         {
-            var list = new List<RoomType>();
+            var list = new List<TravelAgent>();
 
             using var conn = new SqlConnection(_conn);
-            using var cmd = new SqlCommand("sp_GetAllRoomTypes", conn)
+            using var cmd = new SqlCommand("sp_GetAllTravelAgents", conn)
             {
                 CommandType = CommandType.StoredProcedure
             };
@@ -31,66 +31,63 @@ namespace OIT_Reservation.Services
 
             while (reader.Read())
             {
-                list.Add(new RoomType
+                list.Add(new TravelAgent
                 {
-                    RoomTypeID = Convert.ToInt32(reader["RoomTypeID"]),
-                    RoomTypeCode = reader["RoomTypeCode"].ToString(),
+                    TravelAgentID = Convert.ToInt32(reader["TravelAgentID"]),
+                    TravelAgentCode = reader["TravelAgentCode"].ToString(),
                     Description = reader["Description"].ToString(),
-                    Remarks = reader["Remarks"].ToString(),
                 });
             }
 
             return list;
         }
 
-        public bool Create(RoomType roomType)
+        public bool Create(TravelAgent travelAgent)
         {
             try
             {
                 using var conn = new SqlConnection(_conn);
-                using var cmd = new SqlCommand("sp_InsertRoomType", conn)
+                using var cmd = new SqlCommand("sp_InsertTravelAgent", conn)
                 {
                     CommandType = CommandType.StoredProcedure
                 };
 
                 // Output param for generated code
-                var roomTypeCodeParam = new SqlParameter("@RoomTypeCode", SqlDbType.NVarChar, 20)
+                var travelAgentCodeParam = new SqlParameter("@TravelAgentCode", SqlDbType.NVarChar, 20)
                 {
                     Direction = ParameterDirection.Output
                 };
 
-                cmd.Parameters.Add(roomTypeCodeParam);
-                cmd.Parameters.AddWithValue("@Description", roomType.Description);
-                cmd.Parameters.AddWithValue("@Remarks", roomType.Remarks ?? (object)DBNull.Value);
+                cmd.Parameters.Add(travelAgentCodeParam);
+                cmd.Parameters.AddWithValue("@Description", travelAgent.Description);
 
                 conn.Open();
                 cmd.ExecuteNonQuery();
 
                 // Set the generated RoomTypeCode to return or log
-                roomType.RoomTypeCode = roomTypeCodeParam.Value.ToString();
+                travelAgent.TravelAgentCode = travelAgentCodeParam.Value.ToString();
 
                 return true;
             }
             catch (SqlException ex)
             {
-                if (ex.Number == 50000 && ex.Message.Contains("Room Type Code already exists"))
-                    throw new ApplicationException("Room Type Code already exists.");
+                if (ex.Number == 50000 && ex.Message.Contains("Travle Agent Code already exists"))
+                    throw new ApplicationException("Travle Agent Code already exists.");
 
                 throw new ApplicationException("Database error: " + ex.Message);
             }
         }
 
-        public bool Update(RoomType roomType)
+        public bool Update(TravelAgent travelAgent)
         {
             using var conn = new SqlConnection(_conn);
-            using var cmd = new SqlCommand("sp_UpdateRoomType", conn)
+            using var cmd = new SqlCommand("sp_UpdateTravelAgent", conn)
             {
                 CommandType = CommandType.StoredProcedure
             };
 
-            cmd.Parameters.AddWithValue("@RoomTypeID", roomType.RoomTypeID);
-            cmd.Parameters.AddWithValue("@Description", roomType.Description);
-            cmd.Parameters.AddWithValue("@Remarks", roomType.Remarks ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@TravelAgentID", travelAgent.TravelAgentID);
+            cmd.Parameters.AddWithValue("@Description", travelAgent.Description);
 
             var existsParam = new SqlParameter("@Exists", SqlDbType.Bit)
             {
@@ -106,4 +103,3 @@ namespace OIT_Reservation.Services
         }
     }
 }
-

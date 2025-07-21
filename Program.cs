@@ -8,9 +8,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer; // For JwtHelper
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add controllers
-builder.Services.AddControllers();
-
 // Add CORS policy (Allow all for testing)
 builder.Services.AddCors(options =>
 {
@@ -21,6 +18,9 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
+
+// Add controllers
+builder.Services.AddControllers();
 
 // Add logging
 builder.Services.AddLogging(logging =>
@@ -65,14 +65,16 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Add configuration
-
 // Register your app services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<JwtHelper>(); // <-- Register your JwtHelper here
 builder.Services.AddScoped<RoomTypeService>();
-builder.Services.AddScoped<IReservationRoomService, ReservationRoomService>();
+builder.Services.AddScoped<EventTypeService>();
+builder.Services.AddScoped<TravelAgentService>();
+builder.Services.AddScoped<setupStyleService>();
+builder.Services.AddScoped<PackageInfoService>();
+builder.Services.AddScoped<ServiceTypeService>();
 
 // JWT Authentication setup - this only validates incoming tokens
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
