@@ -23,6 +23,13 @@ namespace OIT_Reservation.Controllers
             _jwt = new JwtHelper(config);
         }
 
+        [HttpGet("test-error")]
+        public IActionResult TestError()
+        {
+            throw new Exception("This is a test exception for logging");
+        }
+
+
 
         [HttpPost("register")]
             public IActionResult Register([FromBody] User user)
