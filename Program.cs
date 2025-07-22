@@ -107,6 +107,9 @@ builder.Services.AddScoped<TravelAgentService>();
 builder.Services.AddScoped<setupStyleService>();
 builder.Services.AddScoped<PackageInfoService>();
 builder.Services.AddScoped<ServiceTypeService>();
+builder.Services.AddScoped<CustomerService>();
+;
+ // Register CustomerService
 
 
 // JWT Authentication setup - this only validates incoming tokens

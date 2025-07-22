@@ -103,5 +103,10 @@ namespace OIT_Reservation.Services
             bool exists = existsParam.Value != DBNull.Value && (bool)existsParam.Value;
             return exists;
         }
+
+        internal object Save(Customer customer)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
