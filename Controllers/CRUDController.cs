@@ -23,19 +23,27 @@ namespace OIT_Reservation.Controllers
             _jwt = new JwtHelper(config);
         }
 
+        [HttpGet("test-error")]
+        public IActionResult TestError()
+        {
+            throw new Exception("This is a test exception for logging");
+        }
+
+
 
         [HttpPost("register")]
-            public IActionResult Register([FromBody] User user)
-            {   
-                if (string.IsNullOrWhiteSpace(user.Username) || string.IsNullOrWhiteSpace(user.Password))
-                    return BadRequest("Username and Password are required");
+        public IActionResult Register([FromBody] User user)
+        {
+            if (string.IsNullOrWhiteSpace(user.Username) || string.IsNullOrWhiteSpace(user.Password))
+                return BadRequest("Username and Password are required");
 
-                if (_userService.RegisterUser(user))
-                {
-                    return Ok("User registered");
-                }
+            if (_userService.RegisterUser(user))
+            {
+                return Ok("User registered");
+            }
 
             return BadRequest("Registration failed");
+            
         }
 
 

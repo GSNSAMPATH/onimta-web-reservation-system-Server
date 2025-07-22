@@ -11,8 +11,8 @@ obj/
 packages/
 node_modules/
 .env
+Logs/
 appsettings.Development.json
-appsettings.json
 *.dbmdl
 *.jfm
 _ReSharper*/

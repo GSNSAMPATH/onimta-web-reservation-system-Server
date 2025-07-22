@@ -3,11 +3,43 @@ using System.Text;
 using OIT_Reservation.Interface;
 using OIT_Reservation.Services;
 using OIT_Reservation.Helpers;
-
+using Serilog;
+using Serilog.Exceptions;
 using Microsoft.AspNetCore.Authentication.JwtBearer; // For JwtHelper
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Get log file paths from config
+var logFilePath = builder.Configuration["Logging:LogFilePath"];
+var errorLogFilePath = builder.Configuration["Logging:ErrorLogFilePath"];
+
+// Provide default paths if config values are missing
+if (string.IsNullOrWhiteSpace(logFilePath))
+    logFilePath = "Logs/log.txt";
+if (string.IsNullOrWhiteSpace(errorLogFilePath))
+    errorLogFilePath = "Logs/error.txt";
+
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .Enrich.WithExceptionDetails()
+    .MinimumLevel.Debug()
+    .WriteTo.Console()
+    .WriteTo.File(
+        path: logFilePath,
+        rollingInterval: RollingInterval.Day,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+    )
+    .WriteTo.File(
+        path: errorLogFilePath,
+        restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error,
+        rollingInterval: RollingInterval.Day,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+    )
+    .CreateLogger();
+ // ✅ IMPORTANT - routes ILogger<T> to Serilog
+ // ✅ MUST be here
+builder.Host.UseSerilog();
+// Add Serilog to the logging pipeline
 // Add CORS policy (Allow all for testing)
 builder.Services.AddCors(options =>
 {
@@ -75,6 +107,10 @@ builder.Services.AddScoped<TravelAgentService>();
 builder.Services.AddScoped<setupStyleService>();
 builder.Services.AddScoped<PackageInfoService>();
 builder.Services.AddScoped<ServiceTypeService>();
+builder.Services.AddScoped<CustomerService>();
+;
+ // Register CustomerService
+
 
 // JWT Authentication setup - this only validates incoming tokens
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -136,10 +172,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
 app.UseHttpsRedirection();
 
 app.UseHsts();
 app.UseExceptionHandler("/error");
+
+app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
 app.UseRouting();
 
