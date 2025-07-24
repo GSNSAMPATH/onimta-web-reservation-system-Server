@@ -16,6 +16,24 @@ namespace OIT_Reservation.Services
             _conn = config.GetConnectionString("DefaultConnection");
         }
 
+        public string GetNextServiceCode()
+        {
+            using var conn = new SqlConnection(_conn);
+            using var cmd = new SqlCommand("sp_GetNextServiceCode", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
+            if (reader.Read())
+            {
+                return reader["serviceCode"].ToString();
+            }
+
+            return null;
+        }
+
         public List<ServiceType> GetAll()
         {
             var list = new List<ServiceType>();
@@ -157,5 +175,6 @@ namespace OIT_Reservation.Services
                 throw new ApplicationException($"Database error: {ex.Message}");
             }
         }
+
     }
 }

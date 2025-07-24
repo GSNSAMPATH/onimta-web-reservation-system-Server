@@ -16,6 +16,21 @@ namespace OIT_Reservation.Controllers
             _logger = logger;
         }
 
+        [HttpGet("getNextCode")]
+        public IActionResult GetNextCode()
+        {
+            try
+            {
+                var nextCode = _customerService.GetNextCustomerCode();
+                return Ok(new { nextCode });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting next customer code.");
+                return StatusCode(500, "An error occurred while retrieving the next customer code.");
+            }
+        }
+
 
         [HttpPost("save")]
         public IActionResult SaveCustomer([FromBody] Customer customer)

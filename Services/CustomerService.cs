@@ -16,6 +16,26 @@ namespace OIT_Reservation.Services
             _conn = config.GetConnectionString("DefaultConnection");
         }
 
+        public string GetNextCustomerCode()
+        {
+            using var conn = new SqlConnection(_conn);
+            using var cmd = new SqlCommand("sp_GetNextCustomerCode", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
+            if (reader.Read())
+            {
+                return reader["CustomerCode"].ToString();
+            }
+            return null;
+        }
+
+
+
+
         public string customerSave(Customer customer)
         {
             try

@@ -16,6 +16,25 @@ namespace OIT_Reservation.Controllers
             _service = service;
         }
 
+        //GET: api/setupstyle/getNextCode
+        [HttpGet("getNextCode")]
+        public IActionResult GetNextCode()
+        {
+            try
+            {
+                var nextCode = _service.GetNextSetupStyleCode();
+                return Ok(new { nextCode = nextCode });
+            }
+            catch (SqlException ex)
+            {
+                return BadRequest($"SQL Error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
         //GET: api/setupstyle
         [HttpGet("getall")]
         public IActionResult GetAll()
@@ -49,7 +68,7 @@ namespace OIT_Reservation.Controllers
 
         // PUT: api/setupstyle[HttpPut]
         [HttpPut("Update/{id}")]
-        public IActionResult Update(int id, [FromBody] SetupStyle setupStyle)
+        public IActionResult Update(long id, [FromBody] SetupStyle setupStyle)
         {
             try
             {

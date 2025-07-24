@@ -16,6 +16,25 @@ namespace OIT_Reservation.Services
             _conn = config.GetConnectionString("DefaultConnection");
         }
 
+        public string GetNextTravelAgentCode()
+        {
+            using var conn = new SqlConnection(_conn);
+            using var cmd = new SqlCommand("sp_GetNextTravelAgentCode", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
+
+            if (reader.Read())
+            {
+                return reader["travelAgentCode"].ToString();
+            }
+
+            return null;
+        }
+
         public List<TravelAgent> GetAll()
         {
             var list = new List<TravelAgent>();

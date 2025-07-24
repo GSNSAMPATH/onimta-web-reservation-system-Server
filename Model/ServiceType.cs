@@ -1,6 +1,6 @@
 ﻿public class ServiceType
 {
-    public int ServiceTypeID { get; set; }
+    public long ServiceTypeID { get; set; }
     public string ServiceCode { get; set; } = string.Empty;
     public string ServiceName { get; set; } = string.Empty;
     public decimal Quantity { get; set; }

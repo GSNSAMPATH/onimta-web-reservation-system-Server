@@ -15,6 +15,10 @@ namespace OIT_Reservation.Services
             _conn = config.GetConnectionString("DefaultConnection");
         }
 
+        
+
+
+
         public List<Reservation> GetAll()
         {
             var list = new List<Reservation>();

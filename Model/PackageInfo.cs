@@ -1,6 +1,6 @@
 ﻿public class PackageInfo
 {
-    public int PackageID { get; set; }
+    public long PackageID { get; set; }
     public string PackageCode { get; set; } = string.Empty;
     public string PackageName { get; set; } = string.Empty;
     public decimal PackageDuration { get; set; }
