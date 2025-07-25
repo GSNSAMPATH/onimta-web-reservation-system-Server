@@ -16,6 +16,25 @@ namespace OIT_Reservation.Services
             _conn = config.GetConnectionString("DefaultConnection");
         }
 
+
+        public string GetNextSetupStyleCode()
+        {
+            using var conn = new SqlConnection(_conn);
+            using var cmd = new SqlCommand("sp_GetNextSetupStyleCode", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
+            if (reader.Read())
+            {
+                return reader["setupStyleCode"].ToString();
+            }
+
+            return null;
+        }
+
         public List<SetupStyle> GetAll()
         {
             var list = new List<SetupStyle>();

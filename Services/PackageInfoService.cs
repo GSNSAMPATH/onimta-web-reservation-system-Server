@@ -16,6 +16,26 @@ namespace OIT_Reservation.Services
             _conn = config.GetConnectionString("DefaultConnection");
         }
 
+
+        public string GetNextPackageCode()
+        {
+            using var conn = new SqlConnection(_conn);
+            using var cmd = new SqlCommand("sp_GetNextPackageCode", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
+            if (reader.Read())
+            {
+                return reader["packageCode"].ToString();
+            }
+
+            return null;
+        }
+    
+
         public List<PackageInfo> GetAll()
         {
             var list = new List<PackageInfo>();

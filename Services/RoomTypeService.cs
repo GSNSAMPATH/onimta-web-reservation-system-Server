@@ -16,6 +16,32 @@ namespace OIT_Reservation.Services
             _conn = config.GetConnectionString("DefaultConnection");
         }
 
+
+      public RoomType GetNextCode()
+        {
+            using var conn = new SqlConnection(_conn);
+            using var cmd = new SqlCommand("sp_GetNextRoomTypeCode", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            // Add output parameter
+            var outputParam = new SqlParameter("@RoomTypeCode", SqlDbType.NVarChar, 20)
+            {
+                Direction = ParameterDirection.Output
+            };
+            cmd.Parameters.Add(outputParam);
+
+            conn.Open();
+            cmd.ExecuteNonQuery(); // Use ExecuteNonQuery since we're using output, not result set
+
+            return new RoomType
+            {
+                RoomTypeCode = outputParam.Value?.ToString()
+            };
+        }
+
+
         public List<RoomType> GetAll()
         {
             var list = new List<RoomType>();

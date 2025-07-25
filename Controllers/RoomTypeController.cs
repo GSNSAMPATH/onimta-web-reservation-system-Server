@@ -16,6 +16,25 @@ namespace OIT_Reservation.Controllers
             _service = service;
         }
 
+        [HttpGet("getNextCode")]
+
+        public IActionResult GetNextCode()
+        {
+            try
+            {
+                var roomType = _service.GetNextCode();
+                return Ok(new { nextCode = roomType.RoomTypeCode });
+            }
+            catch (SqlException ex)
+            {
+                return BadRequest($"SQL Error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
         //GET: api/roomtype
         [HttpGet("getall")]
         public IActionResult GetAll()
@@ -49,7 +68,7 @@ namespace OIT_Reservation.Controllers
 
 
         [HttpPut("Update/{id}")]
-        public IActionResult Update(int id, [FromBody] RoomType roomType)
+        public IActionResult Update(long id, [FromBody] RoomType roomType)
         {
             try
             {

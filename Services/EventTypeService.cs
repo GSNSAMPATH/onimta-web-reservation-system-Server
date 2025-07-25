@@ -15,6 +15,23 @@ namespace OIT_Reservation.Services
         {
             _conn = config.GetConnectionString("DefaultConnection");
         }
+        public string GetNextEventCode()
+        {
+            using var conn = new SqlConnection(_conn);
+            using var cmd = new SqlCommand("sp_GetNextEventTypeCode", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
+            if (reader.Read())
+            {
+                return reader["EventCode"].ToString();
+            }
+            return null;
+        }
+
 
         public List<EventType> GetAll()
         {
@@ -61,6 +78,7 @@ namespace OIT_Reservation.Services
                 cmd.Parameters.Add(eventCodeParam);
                 cmd.Parameters.AddWithValue("@Description", eventType.Description);
                 cmd.Parameters.AddWithValue("@Remarks", eventType.Remarks ?? (object)DBNull.Value);
+                
 
                 conn.Open();
                 cmd.ExecuteNonQuery();
