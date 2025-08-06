@@ -46,7 +46,7 @@ namespace OIT_Reservation.Controllers
             }
         }
 
-        [HttpGet("all")]
+        [HttpGet("getall")]
         public IActionResult GetAll()
         {
             try
@@ -81,4 +81,3 @@ namespace OIT_Reservation.Controllers
 }
 
 
-       

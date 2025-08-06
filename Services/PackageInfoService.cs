@@ -19,20 +19,20 @@ namespace OIT_Reservation.Services
 
         public string GetNextPackageCode()
         {
-            using var conn = new SqlConnection(_conn);
-            using var cmd = new SqlCommand("sp_GetNextPackageCode", conn)
-            {
-                CommandType = CommandType.StoredProcedure
-            };
+        using var conn = new SqlConnection(_conn);
+        using var cmd = new SqlCommand("sp_GetNextPackageCode", conn)
+        {
+            CommandType = CommandType.StoredProcedure
+        };
 
-            conn.Open();
-            using var reader = cmd.ExecuteReader();
-            if (reader.Read())
-            {
-                return reader["packageCode"].ToString();
-            }
+        conn.Open();
+        using var reader = cmd.ExecuteReader();
+        if (reader.Read())
+        {
+            return reader["packageCode"].ToString();
+        }
 
-            return null;
+        return null;
         }
     
 
