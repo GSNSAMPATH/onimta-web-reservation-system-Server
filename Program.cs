@@ -108,8 +108,12 @@ builder.Services.AddScoped<setupStyleService>();
 builder.Services.AddScoped<PackageInfoService>();
 builder.Services.AddScoped<ServiceTypeService>();
 builder.Services.AddScoped<CustomerService>();
-;
- // Register CustomerService
+builder.Services.AddScoped<CountryService>(); // Register CountryService
+builder.Services.AddScoped<CustomerTypeService>(); // Register CustomerTypeService
+builder.Services.AddScoped<TitleService>(); // Register TitleService
+builder.Services.AddScoped<NationalityService>(); // Register NationalityService
+
+// Register CustomerService
 
 
 // JWT Authentication setup - this only validates incoming tokens
