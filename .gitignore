@@ -24,3 +24,4 @@ _ReSharper*/
 *.pfx
 *.publishproj
 /Properties/launchSettings.json
+Logs_Record/
